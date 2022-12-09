@@ -17,7 +17,7 @@ namespace CatchGame
 
         List<Rectangle> balls = new List<Rectangle>();
         int ballSize = 10;
-        int ballSpeed = 8;
+        int ballSpeed = 7;
 
         int score = 0;
         int time = 500;
@@ -36,10 +36,6 @@ namespace CatchGame
         public Form1()
         {
             InitializeComponent();
-            balls.Add(new Rectangle(3, 0, ballSize, ballSize));
-            balls.Add(new Rectangle(200, 0, ballSize, ballSize));
-            balls.Add(new Rectangle(400, 0, ballSize, ballSize));
-
         }
 
         private void Form1_KeyDown(object sender, KeyEventArgs e)
@@ -86,8 +82,45 @@ namespace CatchGame
             //move ball objects
             for (int i = 0; i < balls.Count; i++)
             {
-                int y =  balls[i].Y + ballSpeed;
+                int y = balls[i].Y + ballSpeed;
                 balls[i] = new Rectangle(balls[i].X, y, ballSize, ballSize);
+            }
+
+            //generate a random value
+            randValue = randGen.Next(1, 101);
+
+            //generate new ball if it is time
+            if (randValue < 11)
+            {
+                balls.Add(new Rectangle(randGen.Next(0, this.Width - ballSize), 0, ballSize, ballSize));
+            }
+
+            //remove ball if it goes off the screen, (test at y = 400)
+            for (int i = 0; i < balls.Count; i++)
+            {
+                if (balls[i].Y >= this.Height)
+                {
+                    balls.Remove(balls[i]);
+                }
+            }
+
+            //check for collision between any ball and player
+            for (int i = 0; i < balls.Count; i++)
+            {
+                if (hero.IntersectsWith(balls[i]))
+                {
+                    balls.Remove(balls[i]);
+                    score = score + 5;  // score += 5;
+                }
+            }
+
+            //decrease time
+            time--;
+
+            //end game if time runs out
+            if (time <= 0)
+            {
+                gameLoop.Enabled = false;
             }
 
             Refresh();
@@ -96,7 +129,7 @@ namespace CatchGame
         private void Form1_Paint(object sender, PaintEventArgs e)
         {
             //update labels
-            timeLabel.Text = $"Time Left: {time}";
+            timeLabel.Text = $"{time}";
             scoreLabel.Text = $"Score: {score}";
 
             //draw ground
